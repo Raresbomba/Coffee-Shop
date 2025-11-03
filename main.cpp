@@ -31,15 +31,15 @@ class Product {
             this->type = type;
         }
 
-        string& getProductName() {
+        const string& getProductName() const {
             return this->name;
         }
 
-        float getProductPrice() {
+        const float getProductPrice() const {
             return this->price;
         }
 
-        Product_Type getProductType() {
+        const Product_Type getProductType() {
             return this->type;
         }
 
@@ -53,6 +53,12 @@ class Product {
 
         void setProductType(const Product_Type& type) {
             this->type = type;
+        }
+
+        Product(const Product& product) {
+            this->name = product.name;
+            this->price = product.price;
+            this->type = product.type;
         }
 
         Product& operator=(const Product& product) {
@@ -71,15 +77,56 @@ class Product {
 
 };
 
+
+class Client {
+    string name;
+    int id;
+    int points;
+    public:
+
+    Client() = default;
+
+    Client(const string& name, const int id) {
+        this->name = name;
+        this->id = id;
+        this->points = 0;
+    }
+
+    Client& operator=(const Client& client) {
+        this->name = client.name;
+        this->id = client.id;
+        this->points = client.points;
+        return *this;
+    }
+
+    int getClientPoints() const {
+        return this->points;
+    }
+
+    friend ostream& operator<<(ostream& os, const Client& client) {
+        os << "Id Client: " << client.id << endl;
+        os << "Nume Client: " << client.name << endl;
+        os << "Puncte de fidelitate: " << client.points << endl;
+        return os;
+    }
+
+    ~Client() = default;
+};
+
 class Order {
     int id;
     vector<Product> products;
     string date;
     float price;
+    Client client;
 public:
 
-    Order() : price(0) {
+    Order() = default;
+
+    Order(int id, vector<Product> products, const Client& client) : price(0){
         this->date = getDateTime();
+        this->products = products;
+        this->client = client;
         for (auto &product: products) {
             this->price += product.getProductPrice();
         }
@@ -106,23 +153,23 @@ public:
         for (auto & product : products) {
             cout << product.getProductName() << " " << product.getProductPrice() << endl;
         }
-        getPrice();
         cout << this->date;
         cout << "Total: " << this->price << endl;
     }
 
+    friend ostream& operator<<(ostream& os, const Order& order) {
+        os << "Id Comanda: " << order.id << endl;
+        os << "Produse: " << endl;
+        for (const Product& product : order.products) {
+            os << product.getProductName() << ' ' << product.getProductPrice() << endl;
+        }
+        os << "Total: " << order.price << endl;
+        os << "Comanda plasata la " << order.date;
+        return os;
+    }
+
     ~Order() = default;
 
-};
-
-class Client {
-    string name;
-    int id;
-    int points;
-    public:
-    Client(const string& name) {
-        this->name = name;
-    }
 };
 
 
@@ -130,9 +177,13 @@ class Client {
 int main() {
     Product p1("Espresso",10,drink);
     Product p2("Cappuccino",12,drink);
-    Order order1;
-    order1.addProduct(p1);
-    order1.addProduct(p2);
-    order1.showOrder();
+    cout << p1 << " " << p2 << endl;
+    vector<Product> products;
+    products.push_back(p1);
+    products.push_back(p2);
+    Client c("Marcel",1);
+    cout << c << endl;
+    Order order1(1,products,c);
+    cout << order1 << endl;
     return 0;
 }
